@@ -1,6 +1,7 @@
 .login {
   width: 350px;
-  margin: 6rem auto;
+  margin: 0 auto;
+  position: relative;
   padding: 2rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -9,6 +10,7 @@
   flex-direction: column;
   gap: 1rem;
   font: 14px Arial, sans-serif;
+  margin-top: 180px;
 }
 
 .login h1 {
@@ -54,6 +56,7 @@
   .login {
     width: calc(100% - 2rem);
     margin: 2rem auto;
+    top: 1rem;
     padding: 1.5rem;
   }
 }

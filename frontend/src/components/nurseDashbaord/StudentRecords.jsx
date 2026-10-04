@@ -1,4 +1,6 @@
 function formatVaccines(vaccines) {
+  if (typeof vaccines === 'string') return vaccines || '—'
+
   return vaccines?.length
     ? vaccines
       .filter((item) => item.consent !== 'No')
@@ -44,7 +46,11 @@ function StudentRecords({ students, onSelect, onAssess }) {
                   <td>{student.student_class || '—'}</td>
                   <td><span className="record-status">Submitted</span></td>
                   <td>{formatVaccines(student.vaccine_consent)}</td>
-                  <td><span className="assessment-status">Pending</span></td>
+                  <td>
+                    <span className={`assessment-status${student.assessment_status ? ' completed' : ''}`}>
+                      {student.assessment_status ? 'Completed' : 'Pending'}
+                    </span>
+                  </td>
                   <td className="record-actions">
                     <button className="view-record" onClick={() => onSelect(student)}>
                       View

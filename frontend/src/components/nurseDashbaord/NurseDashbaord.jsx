@@ -1,42 +1,45 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { useLocation, useNavigate } from 'react-router-dom'
 import './nurse-dashboard.css'
 import Assessment from './Assessment'
+import ManualEntry from './ManualEntry'
 import StudentDetails from './StudentDetails'
 import StudentRecords from './StudentRecords'
 
-const sampleStudents = [
-  {
-    id: 1,
-    first_name: 'Emma',
-    last_name: 'Johnson',
-    dob: '2015-05-10',
-    student_class: '5A',
-    created_at: '2026-10-03',
-    gender: 'Female',
-    school: 'Bowling Green Elementary',
-    grade: '5',
-    teacher: 'Ms. Smith',
-    guardian_phone: '(270) 555-0142',
-    vaccine_history: [],
-    health_history: [],
-    vaccine_consent: [],
-    parent_declaration: {
-      relationship: 'Parent',
-      parent_first_name: 'Sarah',
-      parent_last_name: 'Johnson',
-      email: 'sarah.johnson@example.com',
-      phone: '(270) 555-0142',
-      signature: 'Sarah Johnson',
-      consent_date: '2026-10-03',
-      confirmed_accuracy: true,
-    },
-  },
-]
-
 function NurseDashboard() {
-  const [students] = useState(sampleStudents)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [students, setStudents] = useState([])
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [assessmentStudent, setAssessmentStudent] = useState(null)
+  const [loadError, setLoadError] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
+  const showManualEntry = location.pathname === '/nurse-dashboard/manual-entry'
+
+  useEffect(() => {
+    async function loadConsents() {
+      try {
+        const response = await axios.get('http://localhost:3000/api/consents')
+        const records = response.data.map((record) => ({
+          ...record,
+          student_class: record.grade,
+          vaccine_consent: record.vaccines_consented
+            ? record.vaccines_consented.split(', ').map((vaccine) => ({
+                vaccine,
+                consent: 'Consent',
+              }))
+            : [],
+        }))
+        setStudents(records)
+      } catch (error) {
+        console.error('Error loading consent records:', error)
+        setLoadError('Could not load consent records.')
+      }
+    }
+
+    loadConsents()
+  }, [refreshKey])
 
   return (
     <div className="app">
@@ -45,13 +48,25 @@ function NurseDashboard() {
         <nav className="sidebar-nav">
             
          
-          <button className="nav-item active">📊 Dashboard</button>
+          <button
+            className={`nav-item${!showManualEntry ? ' active' : ''}`}
+            type="button"
+            onClick={() => {
+              navigate('/nurse-dashboard')
+              setSelectedStudent(null)
+              setAssessmentStudent(null)
+            }}
+          >
+            📊 Dashboard
+          </button>
           
-          <div className="nav-section-label">Clinic Day</div>
-          <button className="nav-item">🏥 Today&apos;s Clinic</button>
-          <button className="nav-item">📋 Add Assessment</button>
-          <div className="nav-section-label">Records</div>
-          <button className="nav-item">✍️ Manual Entry</button>
+          <button
+            className={`nav-item${showManualEntry ? ' active' : ''}`}
+            type="button"
+            onClick={() => navigate('/nurse-dashboard/manual-entry')}
+          >
+            ✍️ Manual Entry
+          </button>
         </nav>
 
         <div className="sidebar-user">
@@ -60,7 +75,19 @@ function NurseDashboard() {
             <div className="name">Sarah Johnson</div>
             <div className="role">Public Health Nurse</div>
           </div>
-          <button className="logout-btn" title="Logout">⏻</button>
+          <button
+            className="logout-btn"
+            type="button"
+            title="Log out"
+            aria-label="Log out"
+            onClick={() => {
+              localStorage.clear()
+              sessionStorage.clear()
+              navigate('/login')
+            }}
+          >
+            ⏻
+          </button>
         </div>
       </aside>
 
@@ -74,10 +101,23 @@ function NurseDashboard() {
         </header>
 
         <main className="nurse-main">
-          {assessmentStudent ? (
+          {loadError && <p className="error-message">{loadError}</p>}
+          {showManualEntry ? (
+            <ManualEntry
+              onBack={() => navigate('/nurse-dashboard')}
+              onSaved={() => {
+                navigate('/nurse-dashboard')
+                setRefreshKey((key) => key + 1)
+              }}
+            />
+          ) : assessmentStudent ? (
             <Assessment
               student={assessmentStudent}
               onBack={() => setAssessmentStudent(null)}
+              onSaved={() => {
+                setAssessmentStudent(null)
+                setRefreshKey((key) => key + 1)
+              }}
             />
           ) : selectedStudent ? (
             <StudentDetails

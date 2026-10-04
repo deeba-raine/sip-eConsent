@@ -84,6 +84,11 @@
   font-weight: 700;
 }
 
+.assessment-status.completed {
+  color: #166534;
+  background: #dcfce7;
+}
+
 .today-date {
   color: var(--grey);
   font-size: 0.8rem;
@@ -220,6 +225,96 @@
   min-width: 0;
   flex: 1;
   padding: 28px;
+}
+
+.manual-entry-card {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.manual-entry-description {
+  margin: 6px 0 0;
+  color: var(--grey);
+}
+
+.manual-entry-warning {
+  margin: 20px 20px 0;
+  padding: 12px 14px;
+  border: 1px solid #e6c76a;
+  border-radius: var(--radius);
+  color: #735600;
+  background: #fff8e1;
+  font-size: 0.85rem;
+}
+
+.manual-entry-form {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+}
+
+.manual-entry-form fieldset {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.manual-entry-form legend {
+  padding: 0 8px;
+  color: var(--blue);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.manual-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.manual-entry-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--grey-dark);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.manual-entry-form input,
+.manual-entry-form select,
+.manual-entry-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: #1a1a1a;
+  background: var(--white);
+  font: inherit;
+}
+
+.manual-entry-form input:focus,
+.manual-entry-form select:focus,
+.manual-entry-form textarea:focus {
+  border-color: var(--blue-mid);
+  outline: 3px solid rgb(0 85 165 / 12%);
+}
+
+.manual-entry-notes {
+  padding: 0 2px;
+}
+
+.manual-entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.assess-submit:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .stats-grid {
@@ -519,5 +614,17 @@
 
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .manual-entry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .manual-entry-actions {
+    justify-content: stretch;
+  }
+
+  .manual-entry-actions button {
+    flex: 1;
   }
 }

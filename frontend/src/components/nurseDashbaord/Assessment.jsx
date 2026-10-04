@@ -1,6 +1,42 @@
+import { useState } from 'react'
+import axios from 'axios'
 import './assessment.css'
 
-function Assessment({ student, onBack }) {
+function Assessment({ student, onBack, onSaved }) {
+  const [form, setForm] = useState({
+    vaccine: '',
+    dateAdministered: '',
+    doseNumber: '',
+    notes: '',
+  })
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+
+  function updateField(event) {
+    setForm({ ...form, [event.target.name]: event.target.value })
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+    setMessage('')
+    setError('')
+
+    try {
+      await axios.post('http://localhost:3000/api/assessments', {
+        studentId: student.student_id,
+        ...form,
+      })
+      setMessage('Assessment saved successfully.')
+      onSaved()
+    } catch (submitError) {
+      console.error('Error saving assessment:', submitError)
+      setError(
+        submitError.response?.data?.message ||
+          'The assessment could not be saved.'
+      )
+    }
+  }
+
   return (
     <section className="assessment-card">
       <div className="assessment-header">
@@ -18,11 +54,16 @@ function Assessment({ student, onBack }) {
 
       <form
         className="assessment-form"
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={handleSubmit}
       >
         <label>
           Vaccine administered
-          <select required defaultValue="">
+          <select
+            name="vaccine"
+            value={form.vaccine}
+            onChange={updateField}
+            required
+          >
             <option value="" disabled>Select a vaccine</option>
             <option>Meningococcal</option>
             <option>HPV</option>
@@ -32,22 +73,44 @@ function Assessment({ student, onBack }) {
 
         <label>
           Date administered
-          <input type="date" required />
+          <input
+            name="dateAdministered"
+            type="date"
+            value={form.dateAdministered}
+            onChange={updateField}
+            required
+          />
         </label>
 
         <label>
           Dose number
-          <input type="number" min="1" placeholder="e.g. 1" required />
+          <input
+            name="doseNumber"
+            type="number"
+            min="1"
+            placeholder="e.g. 1"
+            value={form.doseNumber}
+            onChange={updateField}
+            required
+          />
         </label>
 
         <label>
           Notes
-          <textarea rows="4" placeholder="Add clinic notes" />
+          <textarea
+            name="notes"
+            rows="4"
+            placeholder="Add clinic notes"
+            value={form.notes}
+            onChange={updateField}
+          />
         </label>
 
         <button className="assess-submit" type="submit">
           Save assessment
         </button>
+        {message && <p className="success-message" role="status">{message}</p>}
+        {error && <p className="error-message" role="alert">{error}</p>}
       </form>
     </section>
   )
